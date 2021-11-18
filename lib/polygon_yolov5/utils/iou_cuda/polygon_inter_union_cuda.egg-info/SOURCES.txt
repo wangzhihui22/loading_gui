@@ -1,0 +1,11 @@
+README.txt
+extensions.cpp
+inter_union_cuda.cu
+inter_union_cuda.h
+setup.py
+utils.h
+polygon_inter_union_cuda.egg-info/PKG-INFO
+polygon_inter_union_cuda.egg-info/SOURCES.txt
+polygon_inter_union_cuda.egg-info/dependency_links.txt
+polygon_inter_union_cuda.egg-info/requires.txt
+polygon_inter_union_cuda.egg-info/top_level.txt

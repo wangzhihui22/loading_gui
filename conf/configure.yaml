@@ -1,0 +1,19 @@
+path:
+  ico_path: 'db/icon/uav.ico'
+  ui_file_path: 'lib/qt/main_window.ui'
+
+  img_path: "db/images"
+  model_path : "db/weights/polygon_yolov5m.pt"
+
+
+# TRACE
+# DEBUG
+# INFO
+# SUCCESS
+# WARNING
+# ERROR
+# CRITICAL
+
+log_level: DEBUG
+
+plot_length: 1500
