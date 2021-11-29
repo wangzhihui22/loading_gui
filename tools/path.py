@@ -2,7 +2,7 @@
 # @Time    : 2021/11/17 15:24
 # @Author  : Wang.Zhihui
 # @Email   : w-zhihui@qq.com
-# @File    : path.py.py
+# @File    : _path.py.py
 # @Software: PyCharm
 import os
 

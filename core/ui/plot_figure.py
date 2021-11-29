@@ -4,18 +4,31 @@
 # @Email   : w-zhihui@qq.com
 # @File    : plot_figure.py
 # @Software: PyCharm
+import os
+import time
+
+from PyQt5.QtCore import QThread
+
+from tools.dataset import LoadFlightData
 from tools.log import logging
-from tools.read_parameter import get_conf
+from tools.path import get_project_path
+from tools.read_parameter import get_conf, conf_dic
 
-objs = ["x_draw", "y_draw", "height_draw", "yaw_draw", "pitch_draw", "roll_draw"]
+objs = ["x_draw", "y_draw", "height_draw", "roll_draw", "pitch_draw", "yaw_draw"]
 labels = ["距离", "侧偏", "高度", "俯仰角", "偏航角", "滚转角"]
+edit = ["x_edit", "y_edit", "height_edit", "roll_edit", "pitch_edit", "yaw_edit"]
 
 
-class Plot:
+class Plot(QThread):
     def __init__(self, ui_obj):
+        super().__init__()
         logging.debug("总初始化绘图类")
         self.ui_obj = ui_obj
         self.init_plot()
+        flight_data_path = os.path.join(get_project_path(), conf_dic["path"]["flight_data"])
+        self.data = LoadFlightData(flight_data_path)
+        self.count = 0
+        self._flag = False
 
     def init_plot(self):
         for i_obj in objs:
@@ -29,18 +42,34 @@ class Plot:
         self.ui_obj.tracks_show.create_3d_figure()
         self.ui_obj.tracks_show.draw_3d_fig()
 
+    def update(self):
+        try:
+            data = next(self.data)
+            self.count += 1
+            assert (len(data) == 6), "更新数据必须等于6"
+            # data[0], data[1], data[2] :x , y , z  滚转角 俯仰角 偏航角
+            # objs = ["x_draw", "y_draw", "height_draw"]
+            logging.debug("更新二维绘图{}".format(self.count))
+            for i in range(len(objs)):
+                getattr(self.ui_obj, objs[i]).update_fig(self.count, data[i])
+                # 更新值setText()
+                getattr(self.ui_obj, edit[i]).setText("{:>6.2f}".format(data[i])
+                                                      if i < 3
+                                                      else "{:>6.5f}".format(data[i])
+                                                      )
+            # logging.debug("更新三维绘图")
+            self.ui_obj.tracks_show.update_3d_fig(data[0], data[1], data[2])
+        except StopIteration:
+            logging.info("数据加载结束")
+            self.data.reset()
 
+    def set_flag(self):
+        self._flag = True
 
-    def update(self, data):
-        assert (len(data) == 7), "更新数据必须等于7"
-        # ["x_draw", "y_draw", "height_draw", "yaw_draw", "pitch_draw", "roll_draw"]
-        logging.debug("更新二维绘图")
-        for i in range(len(objs)):
-            getattr(self.ui_obj, objs[i]).update(data[0], data[i+1])
-
-        logging.debug("更新三维绘图")
-        self.ui_obj.tracks_show.update_3d_fig(data[1], data[2], data[3])
-
-
-
-
+    def run(self):
+        while True:
+            if self._flag:
+                self._flag = False
+                self.update()
+            else:
+                time.sleep(0.04)

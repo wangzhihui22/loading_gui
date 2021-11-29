@@ -62,7 +62,7 @@ def kmean_anchors(path='./data/coco128.yaml', n=9, img_size=640, thr=4.0, gen=10
     """ Creates kmeans-evolved anchors from training dataset
 
         Arguments:
-            path: path to dataset *.yaml, or a loaded dataset
+            path: _path to dataset *.yaml, or a loaded dataset
             n: number of anchors
             img_size: image size used for training
             thr: anchor-label wh ratio threshold hyperparameter hyp['anchor_t'] used for training, default=4.0
@@ -172,9 +172,10 @@ def polygon_check_anchors(dataset, model, thr=4.0, imgsz=640):
     scale = np.random.uniform(0.9, 1.1, size=(shapes.shape[0], 1))  # augment scale
     # utilize the minimum outter bounding box as approximations
     # dataset.labels are labels with size (nt, 9), where nt is the number of targets, 9 is class id, xyxyxyxy.
-    original_wh = [np.array([l[:, 1::2].max(axis=1)-l[:, 1::2].min(axis=1),
-                     l[:, 2::2].max(axis=1)-l[:, 2::2].min(axis=1)]).T for l in dataset.labels]
-    wh = torch.tensor(np.concatenate([l * s for s, l in zip(shapes * scale, original_wh)])).float()  # wh of minimum outter bounding box
+    original_wh = [np.array([l[:, 1::2].max(axis=1) - l[:, 1::2].min(axis=1),
+                             l[:, 2::2].max(axis=1) - l[:, 2::2].min(axis=1)]).T for l in dataset.labels]
+    wh = torch.tensor(np.concatenate(
+        [l * s for s, l in zip(shapes * scale, original_wh)])).float()  # wh of minimum outter bounding box
 
     def metric(k):  # compute metric
         r = wh[:, None] / k[None]
@@ -204,14 +205,14 @@ def polygon_check_anchors(dataset, model, thr=4.0, imgsz=640):
         else:
             print(f'{prefix}Original anchors better than new anchors. Proceeding with original anchors.')
     print('')  # newline
-    
-    
+
+
 def polygon_kmean_anchors(path='./data/polygon_coco.yaml', n=9, img_size=640, thr=4.0, gen=1000, verbose=True):
     """ Create kmeans-evolved anchors from polygon-enabled training dataset
        Utilize the minimum outter bounding box as approximations
        
         Arguments:
-            path: path to dataset *.yaml, or a loaded dataset
+            path: _path to dataset *.yaml, or a loaded dataset
             n: number of anchors
             img_size: image size used for training
             thr: anchor-label wh ratio threshold hyperparameter hyp['anchor_t'] used for training, default=4.0
@@ -260,8 +261,8 @@ def polygon_kmean_anchors(path='./data/polygon_coco.yaml', n=9, img_size=640, th
 
     # Get label wh
     shapes = img_size * dataset.shapes / dataset.shapes.max(1, keepdims=True)
-    original_wh = [np.array([l[:, 1::2].max(axis=1)-l[:, 1::2].min(axis=1),
-                     l[:, 2::2].max(axis=1)-l[:, 2::2].min(axis=1)]).T for l in dataset.labels]
+    original_wh = [np.array([l[:, 1::2].max(axis=1) - l[:, 1::2].min(axis=1),
+                             l[:, 2::2].max(axis=1) - l[:, 2::2].min(axis=1)]).T for l in dataset.labels]
     wh0 = np.concatenate([l * s for s, l in zip(shapes, original_wh)])  # wh of minimum outter bounding box
 
     # Filter

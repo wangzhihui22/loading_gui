@@ -1,7 +1,7 @@
 """Export a YOLOv5 *.pt model to TorchScript, ONNX, CoreML formats
 
 Usage:
-    $ python path/to/models/export.py --weights yolov5s.pt --img 640 --batch 1
+    $ python _path/to/models/export.py --weights yolov5s.pt --img 640 --batch 1
 """
 
 import argparse
@@ -22,7 +22,7 @@ from utils.general import colorstr, check_img_size, check_requirements, file_siz
 from utils.torch_utils import select_device
 
 
-def export(weights='./yolov5s.pt',  # weights path
+def export(weights='./yolov5s.pt',  # weights _path
            img_size=(640, 640),  # image (height, width)
            batch_size=1,  # batch size
            device='cpu',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
@@ -144,7 +144,7 @@ def export(weights='./yolov5s.pt',  # weights path
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', type=str, default='./yolov5s.pt', help='weights path')
+    parser.add_argument('--weights', type=str, default='./yolov5s.pt', help='weights _path')
     parser.add_argument('--img-size', nargs='+', type=int, default=[640, 640], help='image (height, width)')
     parser.add_argument('--batch-size', type=int, default=1, help='batch size')
     parser.add_argument('--device', default='cpu', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')

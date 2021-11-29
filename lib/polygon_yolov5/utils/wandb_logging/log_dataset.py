@@ -15,7 +15,7 @@ def create_dataset_artifact(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', type=str, default='data/coco128.yaml', help='data.yaml path')
+    parser.add_argument('--data', type=str, default='data/coco128.yaml', help='data.yaml _path')
     parser.add_argument('--single-cls', action='store_true', help='train as single-class dataset')
     parser.add_argument('--project', type=str, default='YOLOv5', help='y_name of W&B Project')
     opt = parser.parse_args()

@@ -12,7 +12,7 @@ from queue import Queue
 
 from PyQt5.QtGui import QIcon
 from PyQt5.uic import loadUi
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 from core.ui.plot_figure import Plot
@@ -46,6 +46,11 @@ class QWelcomeWindow(QMainWindow):
         self.detect_tread = self.init_detect()
         logging.info("初始化绘图")
         self._plot = self.plot()
+        self._plot.daemon = True
+        self._plot.start()
+
+        # 信号与槽函数绑定
+        self.show_img_tread.update_signal.connect(self.update_flight_values)
 
     def init_btn(self):
         self.start_btn.clicked.connect(self.start_simulation)
@@ -88,6 +93,11 @@ class QWelcomeWindow(QMainWindow):
         show_img_tread.daemon = True
         show_img_tread.start()
         return show_img_tread
+
+    @pyqtSlot(bool)
+    def update_flight_values(self, flag):
+        if flag:
+            self._plot.set_flag()
 
 
 #  ============窗体测试程序 ================================

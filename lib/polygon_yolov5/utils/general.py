@@ -83,7 +83,7 @@ def init_seeds(seed=0):
 
 
 def get_latest_run(search_dir='.'):
-    # Return path to most recent 'last.pt' in /runs (i.e. to --resume from)
+    # Return _path to most recent 'last.pt' in /runs (i.e. to --resume from)
     last_list = glob.glob(f'{search_dir}/**/last*.pt', recursive=True)
     return max(last_list, key=os.path.getctime) if last_list else ''
 
@@ -215,7 +215,7 @@ def check_imshow():
 
 
 def check_file(file):
-    # Search/download file (if necessary) and return path
+    # Search/download file (if necessary) and return _path
     file = str(file)  # convert to str()
     if Path(file).is_file() or file == '':  # exists
         return file
@@ -237,7 +237,7 @@ def check_dataset(data, autodownload=True):
     # Download dataset if not found locally
     val, s = data.get('val'), data.get('download')
     if val and len(val):
-        val = [Path(x).resolve() for x in (val if isinstance(val, list) else [val])]  # val path
+        val = [Path(x).resolve() for x in (val if isinstance(val, list) else [val])]  # val _path
         if not all(x.exists() for x in val):
             print('\nWARNING: Dataset not found, nonexistent paths: %s' % [str(x) for x in val if not x.exists()])
             if s and len(s) and autodownload:  # download script
@@ -727,7 +727,7 @@ def save_one_box(xyxy, im, file='image.jpg', gain=1.02, pad=10, square=False, BG
     return crop
 
 def increment_path(path, exist_ok=False, sep='', mkdir=False):
-    # Increment file or directory path, i.e. runs/exp --> runs/exp{sep}2, runs/exp{sep}3, ... etc.
+    # Increment file or directory _path, i.e. runs/exp --> runs/exp{sep}2, runs/exp{sep}3, ... etc.
     path = Path(path)  # os-agnostic
     if path.exists() and not exist_ok:
         suffix = path.suffix
@@ -736,7 +736,7 @@ def increment_path(path, exist_ok=False, sep='', mkdir=False):
         matches = [re.search(rf"%s{sep}(\d+)" % path.stem, d) for d in dirs]
         i = [int(m.groups()[0]) for m in matches if m]  # indices
         n = max(i) + 1 if i else 2  # increment number
-        path = Path(f"{path}{sep}{n}{suffix}")  # update path
+        path = Path(f"{path}{sep}{n}{suffix}")  # update _path
     dir = path if path.suffix == '' else path.parent  # directory
     if not dir.exists() and mkdir:
         dir.mkdir(parents=True, exist_ok=True)  # make directory

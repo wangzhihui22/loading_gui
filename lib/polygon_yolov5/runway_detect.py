@@ -55,7 +55,7 @@ def init_model(weights="polygon-yolov5s-ucas.pt",
 
 @torch.no_grad()
 def run_detect(model,
-                  # path,  # BGR img0 = cv2.imread(path)
+                  # _path,  # BGR img0 = cv2.imread(_path)
                   img0,
                   imgsz,
                   stride,
@@ -74,7 +74,7 @@ def run_detect(model,
                   save_conf=False
                   ):
 
-    # img0 = cv2.imread(path)
+    # img0 = cv2.imread(_path)
     img = letterbox(img0, imgsz, stride=stride)[0]
     img = img[:, :, ::-1].transpose(2, 0, 1)
     img = np.ascontiguousarray(img)
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     model, imgsz, names, device, stride = init_model()
     ret = run_detect(model=model,
                         path=r"E:\OneDrive\code\loading\lib\polygon_yolov5\data\images\bus.jpg",
-                        # BGR img0 = cv2.imread(path)
+                        # BGR img0 = cv2.imread(_path)
                         imgsz=imgsz,
                         stride=stride,
                         names=names,

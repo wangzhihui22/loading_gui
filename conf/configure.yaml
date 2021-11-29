@@ -4,6 +4,7 @@ path:
 
   img_path: "db/images"
   model_path : "db/weights/polygon_yolov5m.pt"
+  flight_data: "db/imu/truth.txt"
 
 
 # TRACE

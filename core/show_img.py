@@ -16,6 +16,7 @@ from tools.log import logging
 
 class ShowImageThread(QThread):
     update_signal = pyqtSignal(bool)
+
     def __init__(self, ui_obj):
         super(ShowImageThread, self).__init__()
         self._working = False

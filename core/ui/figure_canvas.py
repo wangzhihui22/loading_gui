@@ -49,8 +49,6 @@ class QmyFigureCanvas(QWidget):
         self.x = deque()
         self.y = deque()
         self.z = deque()
-
-        self.t = None  # 二维图的x轴序列
         self.fig_img = None
         logging.debug("画布初始化完成")
 
@@ -70,7 +68,7 @@ class QmyFigureCanvas(QWidget):
         设置画图为 1 幅
         """
         logging.debug("创建二维画布")
-        self.figure = figure.Figure(dpi=80)
+        self.figure = figure.Figure(dpi=40)
         fig_canvas = FigureCanvas(self.figure)  # 创建FigureCanvas对象，必须传递一个Figure对象
         self.figure.subplots_adjust(left=None, bottom=None, right=1, top=1)
         # self.figure.subplots_adjust(bottom=0.17)
@@ -86,22 +84,23 @@ class QmyFigureCanvas(QWidget):
 
     # 绘制二维曲线
     def draw_fig(self, y_name, x_name, label):  # 初始化绘图
-        self.ax1.cla()  # 动态图，更新图要删除上一幅，必须
-        self.line_fig = self.ax1.plot(self.x, self.y, '-', label=label, linewidth=1)[0]  # 绘制一条曲线
-        self.ax1.set_xlabel(x_name)  # X轴标题
-        self.ax1.set_ylabel(y_name)  # Y轴标题
+        self.ax1.cla()  # 动态图，更新图要删除上一幅，必须  # , label=label
+        self.line_fig = self.ax1.plot(self.x, self.y, '-', linewidth=1)[0]  # 绘制一条曲线
+        # self.ax1.set_xlabel(x_name)  # X轴标题
+        # self.ax1.set_ylabel(y_name)  # Y轴标题
         self.figure.canvas.draw()
 
     def update_fig(self, x_num, y_num):
+        # self.ax1.cla()
         self.limit_length()
         self.x.append(x_num)
         self.y.append(y_num)
-        self.line_fig.set_xdata(self.x)
-        self.line_fig.set_ydata(self.y)
         x_min, x_max = self.get_range(self.x)
         y_min, y_max = self.get_range(self.y)
         self.ax1.set_xlim([x_min, x_max])  # X轴坐标范围
         self.ax1.set_ylim([y_min, y_max])  # Y轴坐标范围
+        self.line_fig.set_xdata(self.x)
+        self.line_fig.set_ydata(self.y)
         self.figure.canvas.draw()
 
     @staticmethod
@@ -109,14 +108,18 @@ class QmyFigureCanvas(QWidget):
         x_min = min(x)
         x_max = max(x)
         diff = (x_max - x_min)
-        x_min = x_min + diff * 0.2
-        x_max = x_max + diff * 0.3
+        if diff < 0.08:
+            x_min = x_min - 0.08
+            x_max = x_max + 0.08
+        x_min = x_min * 0.8
+        x_max = x_max * 1.2
+
         return x_min, x_max
 
     # 以下画三维，画地图都大同小异
     # 创建三维曲线
     def create_3d_figure(self):
-        self.figure = figure.Figure(dpi=80)
+        self.figure = figure.Figure(dpi=40)
         fig_canvas = FigureCanvas(self.figure)
 
         layout = QVBoxLayout(self)
@@ -160,3 +163,22 @@ class QmyFigureCanvas(QWidget):
         self.ax_3d.set_ylim([y_min, y_max])
         self.ax_3d.set_zlim([z_min, z_max])
         self.figure.canvas.draw()
+
+
+
+
+"""
+三维   tracks_show
+x_draw
+y_draw
+height_draw
+yaw_draw
+pitch_draw
+roll_draw
+
+QmyFigureCanvas
+myFigureCanvas.h
+
+
+
+"""

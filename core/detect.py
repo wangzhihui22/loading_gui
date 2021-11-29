@@ -86,6 +86,7 @@ class DetectThread(QThread):
         #     self.target_queue.get()
         while not self._close:
             if self._working:
+                start = time.time()
                 try:
                     path, img_rgb = next(self.dataset)
                     img, ret = self.net_obj.detect_run(img_rgb)
@@ -95,6 +96,9 @@ class DetectThread(QThread):
                 except StopIteration:
                     logging.info("检测图片结束")
                     self.dataset.reset()
+                end = time.time()
+                if end - start < 0.066:
+                    time.sleep(0.066 - (end-start))
             else:
                 logging.info("检测线程睡眠")
                 time.sleep(0.1)

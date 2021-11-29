@@ -129,7 +129,7 @@ class _RepeatSampler(object):
 
 class LoadImages:  # for inference
     def __init__(self, path, img_size=640, stride=32):
-        p = str(Path(path).absolute())  # os-agnostic absolute path
+        p = str(Path(path).absolute())  # os-agnostic absolute _path
         if '*' in p:
             files = sorted(glob.glob(p, recursive=True))  # glob
         elif os.path.isdir(p):
@@ -376,8 +376,8 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
                     with open(p, 'r') as t:
                         t = t.read().strip().splitlines()
                         parent = str(p.parent) + os.sep
-                        f += [x.replace('./', parent) if x.startswith('./') else x for x in t]  # local to global path
-                        # f += [p.parent / x.lstrip(os.sep) for x in t]  # local to global path (pathlib)
+                        f += [x.replace('./', parent) if x.startswith('./') else x for x in t]  # local to global _path
+                        # f += [p.parent / x.lstrip(os.sep) for x in t]  # local to global _path (pathlib)
                 else:
                     raise Exception(f'{prefix}{p} does not exist')
             self.img_files = sorted([x.replace('/', os.sep) for x in f if x.split('.')[-1].lower() in img_formats])
@@ -485,7 +485,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
             torch.save(x, path)  # save cache for next time
             logging.info(f'{prefix}New cache created: {path}')
         except Exception as e:
-            logging.info(f'{prefix}WARNING: Cache directory {path.parent} is not writeable: {e}')  # path not writeable
+            logging.info(f'{prefix}WARNING: Cache directory {path.parent} is not writeable: {e}')  # _path not writeable
         return x
 
     def __len__(self):
@@ -1017,10 +1017,10 @@ def extract_boxes(path='../coco128/'):  # from utils.datasets import *; extract_
 
 
 def autosplit(path='../coco128', weights=(0.9, 0.1, 0.0), annotated_only=False):
-    """ Autosplit a dataset into train/val/test splits and save path/autosplit_*.txt files
+    """ Autosplit a dataset into train/val/test splits and save _path/autosplit_*.txt files
     Usage: from utils.datasets import *; autosplit('../coco128')
     Arguments
-        path:           Path to images directory
+        _path:           Path to images directory
         weights:        Train, val, test weights (list)
         annotated_only: Only use images with an annotated txt file
     """
@@ -1082,7 +1082,7 @@ def dataset_stats(path='coco128.yaml', autodownload=False, verbose=False):
     """ Return dataset statistics dictionary with images and instances counts per split per class
     Usage: from utils.datasets import *; dataset_stats('coco128.yaml', verbose=True)
     Arguments
-        path:           Path to data.yaml
+        _path:           Path to data.yaml
         autodownload:   Attempt to download dataset if not found locally
         verbose:        Print stats dictionary
     """
@@ -1273,8 +1273,8 @@ class Polygon_LoadImagesAndLabels(Dataset):  # for training/testing
                     with open(p, 'r') as t:
                         t = t.read().strip().splitlines()
                         parent = str(p.parent) + os.sep
-                        f += [x.replace('./', parent) if x.startswith('./') else x for x in t]  # local to global path
-                        # f += [p.parent / x.lstrip(os.sep) for x in t]  # local to global path (pathlib)
+                        f += [x.replace('./', parent) if x.startswith('./') else x for x in t]  # local to global _path
+                        # f += [p.parent / x.lstrip(os.sep) for x in t]  # local to global _path (pathlib)
                 else:
                     raise Exception(f'{prefix}{p} does not exist')
             self.img_files = sorted([x.replace('/', os.sep) for x in f if x.split('.')[-1].lower() in img_formats])
@@ -1383,7 +1383,7 @@ class Polygon_LoadImagesAndLabels(Dataset):  # for training/testing
             torch.save(x, path)  # save cache for next time
             logging.info(f'{prefix}New cache created: {path}')
         except Exception as e:
-            logging.info(f'{prefix}WARNING: Cache directory {path.parent} is not writeable: {e}')  # path not writeable
+            logging.info(f'{prefix}WARNING: Cache directory {path.parent} is not writeable: {e}')  # _path not writeable
         return x
 
     def __len__(self):
