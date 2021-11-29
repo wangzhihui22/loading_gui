@@ -109,10 +109,10 @@ class QmyFigureCanvas(QWidget):
         x_max = max(x)
         diff = (x_max - x_min)
         if diff < 0.08:
-            x_min = x_min - 0.08
-            x_max = x_max + 0.08
-        x_min = x_min * 0.8
-        x_max = x_max * 1.2
+            x_min = x_min - 0.01
+            x_max = x_max + 0.01
+        x_min = x_min * 0.9
+        x_max = x_max * 1.1
 
         return x_min, x_max
 

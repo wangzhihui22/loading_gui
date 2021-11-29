@@ -46,11 +46,8 @@ class QWelcomeWindow(QMainWindow):
         self.detect_tread = self.init_detect()
         logging.info("初始化绘图")
         self._plot = self.plot()
-        self._plot.daemon = True
-        self._plot.start()
-
         # 信号与槽函数绑定
-        self.show_img_tread.update_signal.connect(self.update_flight_values)
+        self.show_img_tread.update_signal.connect(self._plot.update_flight_values)
 
     def init_btn(self):
         self.start_btn.clicked.connect(self.start_simulation)
@@ -94,10 +91,10 @@ class QWelcomeWindow(QMainWindow):
         show_img_tread.start()
         return show_img_tread
 
-    @pyqtSlot(bool)
-    def update_flight_values(self, flag):
-        if flag:
-            self._plot.set_flag()
+
+    # def update_flight_values(self, flag):
+    #     if flag:
+    #         self._plot.set_flag()
 
 
 #  ============窗体测试程序 ================================

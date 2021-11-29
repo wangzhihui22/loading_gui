@@ -6,9 +6,12 @@
 # @Software: PyCharm
 import os
 import time
+from queue import Queue
 
-from PyQt5.QtCore import QThread
+import numpy as np
+from PyQt5.QtCore import QThread, pyqtSlot, pyqtSignal
 
+from core.thread.plot_thread import PlotThread
 from tools.dataset import LoadFlightData
 from tools.log import logging
 from tools.path import get_project_path
@@ -16,10 +19,21 @@ from tools.read_parameter import get_conf, conf_dic
 
 objs = ["x_draw", "y_draw", "height_draw", "roll_draw", "pitch_draw", "yaw_draw"]
 labels = ["距离", "侧偏", "高度", "俯仰角", "偏航角", "滚转角"]
-edit = ["x_edit", "y_edit", "height_edit", "roll_edit", "pitch_edit", "yaw_edit"]
+
+
+data_2d_signal = ["x_draw_data_signal", "y_draw_data_signal", "height_draw_data_signal",
+                  "roll_draw_data_signal", "pitch_draw_data_signal", "yaw_draw_data_signal"]
 
 
 class Plot(QThread):
+    x_draw_data_signal = pyqtSignal(float)
+    y_draw_data_signal = pyqtSignal(float)
+    height_draw_data_signal = pyqtSignal(float)
+    roll_draw_data_signal = pyqtSignal(float)
+    pitch_draw_data_signal = pyqtSignal(float)
+    yaw_draw_data_signal = pyqtSignal(float)
+    data_3d_signal = pyqtSignal(list)
+
     def __init__(self, ui_obj):
         super().__init__()
         logging.debug("总初始化绘图类")
@@ -27,8 +41,15 @@ class Plot(QThread):
         self.init_plot()
         flight_data_path = os.path.join(get_project_path(), conf_dic["path"]["flight_data"])
         self.data = LoadFlightData(flight_data_path)
+        self.thread = [None] * (len(objs) + 1)
+        self.queue_data = [None] * (len(objs) + 1)
         self.count = 0
         self._flag = False
+        self.init_thread()
+        for i in range(len(data_2d_signal)):
+            getattr(self, data_2d_signal[i]).connect(self.thread[i].get_2d_data)
+        self.data_3d_signal.connect(self.thread[6].get_3d_data)
+        self.start_thread()
 
     def init_plot(self):
         for i_obj in objs:
@@ -42,34 +63,26 @@ class Plot(QThread):
         self.ui_obj.tracks_show.create_3d_figure()
         self.ui_obj.tracks_show.draw_3d_fig()
 
-    def update(self):
+    def init_thread(self):
+        for i in range(len(objs)):
+            self.thread[i] = PlotThread(self.ui_obj, objs[i])
+            self.thread[i].daemon = True
+
+        self.thread[len(objs)] = PlotThread(self.ui_obj)
+        self.thread[len(objs)].daemon = True
+
+    def start_thread(self):
+        for i in range(len(objs)):
+            self.thread[i].start()
+        self.thread[6].start()
+
+    @pyqtSlot(bool)
+    def update_flight_values(self, flag):
         try:
             data = next(self.data)
-            self.count += 1
-            assert (len(data) == 6), "更新数据必须等于6"
-            # data[0], data[1], data[2] :x , y , z  滚转角 俯仰角 偏航角
-            # objs = ["x_draw", "y_draw", "height_draw"]
-            logging.debug("更新二维绘图{}".format(self.count))
-            for i in range(len(objs)):
-                getattr(self.ui_obj, objs[i]).update_fig(self.count, data[i])
-                # 更新值setText()
-                getattr(self.ui_obj, edit[i]).setText("{:>6.2f}".format(data[i])
-                                                      if i < 3
-                                                      else "{:>6.5f}".format(data[i])
-                                                      )
-            # logging.debug("更新三维绘图")
-            self.ui_obj.tracks_show.update_3d_fig(data[0], data[1], data[2])
+            for i in range(len(data_2d_signal)):
+                getattr(self, data_2d_signal[i]).emit(data[i])
+            self.data_3d_signal.emit(data[:3].tolist())
         except StopIteration:
-            logging.info("数据加载结束")
             self.data.reset()
-
-    def set_flag(self):
-        self._flag = True
-
-    def run(self):
-        while True:
-            if self._flag:
-                self._flag = False
-                self.update()
-            else:
-                time.sleep(0.04)
+            logging.info("处理完毕重新处理")
