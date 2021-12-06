@@ -82,10 +82,12 @@ class LoadFlightData:
         self.count = 0
 
     def __next__(self):
-        if self.count == self.ni:
+        if self.count == self.ni-1:
             raise StopIteration
+
+        data = self.flight_data[self.count]
         self.count += 1
-        return self.flight_data[self.count]
+        return data
 
 
 if __name__ == '__main__':

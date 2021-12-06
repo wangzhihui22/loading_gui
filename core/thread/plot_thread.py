@@ -16,6 +16,7 @@ edit = ["x_edit", "y_edit", "height_edit", "roll_edit", "pitch_edit", "yaw_edit"
 class PlotThread(QThread):
     def __init__(self, ui_obj, draw_name=None):
         super().__init__()
+        self._close = False
         self.count = 0
         self.ui_obj = ui_obj
         self.draw_name = draw_name
@@ -70,8 +71,10 @@ class PlotThread(QThread):
     def set_flag(self):
         self.flag = True
 
+    def close(self):
+        self._close = True
     def run(self):
-        while True:
+        while not self._close:
             if self.data:
                 logging.debug("更新一次绘图{},第{}帧".format(self.draw_name, self.count))
                 start = time.time()

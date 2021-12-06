@@ -33,12 +33,13 @@ from collections import deque
 
 class QmyFigureCanvas(QWidget):
 
-    def __init__(self, parent=None, toolbarVisible=True, showHint=False):
+    def __init__(self, parent=None):
         # 类初始化
         super().__init__(parent)
-        self.showHint = showHint
-        self.toolbarVisible = toolbarVisible
-        mplStyle.use("classic")  # 使用样式，必须在绘图之前调用,修改字体后才可显示汉字
+        self.pdi = int(conf_dic["draw"]["dpi"])
+        # self.showHint = showHint
+        # self.toolbarVisible = toolbarVisible
+        # mplStyle.use("classic")  # 使用样式，必须在绘图之前调用,修改字体后才可显示汉字
         rcParams['font.sans-serif'] = ['KaiTi', 'SimHei']  # 显示汉字为 楷体， 汉字不支持 粗体，斜体等设置
         rcParams['font.size'] = 15
         rcParams['axes.unicode_minus'] = False  # 减号unicode编码
@@ -53,10 +54,10 @@ class QmyFigureCanvas(QWidget):
         logging.debug("画布初始化完成")
 
     def limit_length(self):
-        if len(self.x) >= conf_dic["plot_length"]:
+        if len(self.x) >= conf_dic["draw"]["plot_length"]:
             self.x.popleft()
             self.y.popleft()
-        if len(self.z) >= conf_dic["plot_length"]:
+        if len(self.z) >= conf_dic["draw"]["plot_length"]:
             self.z.popleft()
 
     #  ==============自定义功能函数========================
@@ -68,7 +69,7 @@ class QmyFigureCanvas(QWidget):
         设置画图为 1 幅
         """
         logging.debug("创建二维画布")
-        self.figure = figure.Figure(dpi=40)
+        self.figure = figure.Figure(dpi=self.pdi)
         fig_canvas = FigureCanvas(self.figure)  # 创建FigureCanvas对象，必须传递一个Figure对象
         self.figure.subplots_adjust(left=None, bottom=None, right=1, top=1)
         # self.figure.subplots_adjust(bottom=0.17)
@@ -103,6 +104,7 @@ class QmyFigureCanvas(QWidget):
         self.line_fig.set_ydata(self.y)
         self.figure.canvas.draw()
 
+
     @staticmethod
     def get_range(x):
         x_min = min(x)
@@ -119,7 +121,8 @@ class QmyFigureCanvas(QWidget):
     # 以下画三维，画地图都大同小异
     # 创建三维曲线
     def create_3d_figure(self):
-        self.figure = figure.Figure(dpi=40)
+
+        self.figure = figure.Figure(dpi=self.pdi)
         fig_canvas = FigureCanvas(self.figure)
 
         layout = QVBoxLayout(self)
@@ -163,8 +166,6 @@ class QmyFigureCanvas(QWidget):
         self.ax_3d.set_ylim([y_min, y_max])
         self.ax_3d.set_zlim([z_min, z_max])
         self.figure.canvas.draw()
-
-
 
 
 """

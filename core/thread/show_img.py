@@ -19,6 +19,7 @@ class ShowImageThread(QThread):
 
     def __init__(self, ui_obj):
         super(ShowImageThread, self).__init__()
+        self._close = False
         self._working = False
         self.ui_obj = ui_obj
         self.target_queue = ui_obj.target_queue
@@ -51,8 +52,11 @@ class ShowImageThread(QThread):
         self.show_img_lbl.setScaledContents(True)
         self.show_img_lbl.setPixmap(pixmap)
 
+    def close(self):
+        self._close = True
+
     def run(self):
-        while True:
+        while not self._close:
             if self._working:
                 self.set_img()
             else:

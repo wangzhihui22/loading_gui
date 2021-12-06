@@ -79,6 +79,7 @@ class Plot(QThread):
     @pyqtSlot(bool)
     def update_flight_values(self, flag):
         try:
+
             data = next(self.data)
             for i in range(len(data_2d_signal)):
                 getattr(self, data_2d_signal[i]).emit(data[i])
@@ -86,3 +87,8 @@ class Plot(QThread):
         except StopIteration:
             self.data.reset()
             logging.info("处理完毕重新处理")
+        self.count += 1
+    def close(self):
+        for t in self.thread:
+            t.close()
+

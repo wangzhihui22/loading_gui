@@ -7,24 +7,22 @@
 
 import sys
 import os
-import time
 from queue import Queue
 
 from PyQt5.QtGui import QIcon
 from PyQt5.uic import loadUi
-from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
 from core.ui.plot_figure import Plot
 
 env_path = os.path.join(os.path.dirname(__file__), '../../..')
 if env_path not in sys.path:
     sys.path.append(env_path)
-from core.detect import DetectBase, DetectThread
-from core.show_img import ShowImageThread
+from core.thread.detect import DetectBase, DetectThread
+from core.thread.show_img import ShowImageThread
 from tools.log import logging
 from tools.path import get_project_path
-from tools.read_parameter import conf_dic
 
 
 class QWelcomeWindow(QMainWindow):
@@ -69,6 +67,7 @@ class QWelcomeWindow(QMainWindow):
 
     def plot(self):
         return Plot(self)
+
     # 创建队列
     @staticmethod
     def create_queue(num):
@@ -91,10 +90,20 @@ class QWelcomeWindow(QMainWindow):
         show_img_tread.start()
         return show_img_tread
 
+    def closeEvent(self, event):
 
-    # def update_flight_values(self, flag):
-    #     if flag:
-    #         self._plot.set_flag()
+        dlg_title = u"警告"
+        str_info = u"无人机着陆仿真系统正在运行，是否要关闭？"
+        default_btn = QMessageBox.NoButton
+        result = QMessageBox.question(self, dlg_title, str_info,
+                                      QMessageBox.Yes | QMessageBox.No, default_btn)
+        if result == QMessageBox.Yes:
+            self.detect_tread.close()
+            self.show_img_tread.close()
+            self._plot.close()
+            event.accept()
+        else:
+            event.ignore()
 
 
 #  ============窗体测试程序 ================================

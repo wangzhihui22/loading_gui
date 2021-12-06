@@ -18,7 +18,7 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
     scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path, save_one_box, \
     polygon_non_max_suppression, polygon_scale_coords
 
-from utils.plots import colors, plot_one_box, polygon_plot_one_box
+from utils.plots import colors, plot_one_box, polygon_plot_one_box, plot_circle_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 
 import subprocess as sp
@@ -53,6 +53,8 @@ def init_model(weights="polygon-yolov5s-ucas.pt",
     return model, imgsz, names, device, stride
 
 
+count = 0
+
 @torch.no_grad()
 def run_detect(model,
                   # _path,  # BGR img0 = cv2.imread(_path)
@@ -69,11 +71,11 @@ def run_detect(model,
                   max_det=1000,
                   hide_labels=False,
                   hide_conf=False,
-                  line_thickness=3,
+                  line_thickness=1,
                   save_txt=False,
                   save_conf=False
                   ):
-
+    global count
     # img0 = cv2.imread(_path)
     img = letterbox(img0, imgsz, stride=stride)[0]
     img = img[:, :, ::-1].transpose(2, 0, 1)
@@ -119,12 +121,16 @@ def run_detect(model,
             c = int(cls)  # integer class
             label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
             polygon_plot_one_box(torch.tensor(xyxyxyxy).cpu().numpy(),
-                                 im0, label=label,
-                                 color=colors(c, True),
+                                 im0, label=None,
+                                 color=colors(c+1, True),
                                  line_thickness=line_thickness)
-
+            plot_circle_one_box(torch.tensor(xyxyxyxy).cpu().numpy(),
+                                im0,
+                                color=colors(c, True))  # 5
+            # cv2.imwrite(, im0)
     print(f'{s}Done. ({t2 - t1:.3f}s)')
-    # cv2.imshow("img", im0)
+    cv2.imwrite("./img/{:6>d}.jpg".format(count), im0)
+    count += 1
     # cv2.waitKey(0)
     return im0, det
 

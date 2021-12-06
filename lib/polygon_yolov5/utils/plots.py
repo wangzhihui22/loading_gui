@@ -28,7 +28,7 @@ class Colors:
     # Ultralytics color palette https://ultralytics.com/
     def __init__(self):
         # hex = matplotlib.colors.TABLEAU_COLORS.values()
-        hex = ('FF3838', 'FF9D97', 'FF701F', 'FFB21D', 'CFD231', '48F90A', '92CC17', '3DDB86', '1A9334', '00D4BB',
+        hex = ('FF3838', '000000', 'FF701F', 'FFB21D', 'CFD231', '48F90A', '92CC17', '3DDB86', '1A9334', '00D4BB',
                '2C99A8', '00C2FF', '344593', '6473FF', '0018EC', '8438FF', '520085', 'CB38FF', 'FF95C8', 'FF37C7')
         self.palette = [self.hex2rgb('#' + c) for c in hex]
         self.n = len(self.palette)
@@ -315,7 +315,7 @@ def plot_labels(labels, names=(), save_dir=Path(''), loggers=None):
         ImageDraw.Draw(img).rectangle(box, width=1, outline=colors(cls))  # plot
     ax[1].imshow(img)
     ax[1].axis('off')
-    
+
     for a in [0, 1, 2, 3]:
         for s in ['top', 'right', 'left', 'bottom']:
             ax[a].spines[s].set_visible(False)
@@ -408,7 +408,7 @@ def plot_results_overlay(start=0, stop=0):  # from utils.plots import *; plot_re
             ax[i].set_ylabel(f) if i == 0 else None  # add filename
         fig.savefig(f.replace('.txt', '.png'), dpi=200)
 
-        
+
 def plot_results(start=0, stop=0, bucket='', id=(), labels=(), save_dir=''):
     # Plot training 'results*.txt'. from utils.plots import *; plot_results(save_dir='runs/train/exp')
     fig, ax = plt.subplots(2, 5, figsize=(12, 6), tight_layout=True)
@@ -444,7 +444,7 @@ def plot_results(start=0, stop=0, bucket='', id=(), labels=(), save_dir=''):
     ax[1].legend()
     fig.savefig(Path(save_dir) / 'results.png', dpi=200)
 
-    
+
 # Ancillary functions with polygon anchor boxes-------------------------------------------------------------------------------------------
 
 def polygon_plot_one_box(x, im, color=(128, 128, 128), label=None, line_thickness=3):
@@ -452,10 +452,12 @@ def polygon_plot_one_box(x, im, color=(128, 128, 128), label=None, line_thicknes
         Plots one bounding box on image 'im' using OpenCV
         im is np.array with shape (W, H, Ch), x is pixel-level xyxyxyxy
     """
-    
     assert im.data.contiguous, 'Image not contiguous. Apply np.ascontiguousarray(im) to polygon_plot_one_box() input image.'
     tl = line_thickness or round(0.002 * (im.shape[0] + im.shape[1]) / 2) + 1  # line/font thickness
-    c = x.cpu().numpy().reshape(-1, 1, 2).astype(np.int32) if isinstance(x, torch.Tensor) else np.array(x).reshape(-1, 1, 2).astype(np.int32)
+    c = x.cpu().numpy().reshape(-1, 1, 2).astype(np.int32) if isinstance(x, torch.Tensor) else np.array(x).reshape(-1,
+                                                                                                                   1,
+                                                                                                                   2).astype(
+        np.int32)
     cv2.polylines(im, pts=[c], isClosed=True, color=color, thickness=tl, lineType=cv2.LINE_AA)
     if label:
         tf = max(tl - 1, 1)  # font thickness
@@ -465,8 +467,17 @@ def polygon_plot_one_box(x, im, color=(128, 128, 128), label=None, line_thicknes
         im_origin = im.copy()
         cv2.rectangle(im, c1, c2, color, -1, cv2.LINE_AA)  # filled
         cv2.putText(im, label, (c1[0], c1[1] - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
-        alpha = 0.5    # opacity of 0.5
+        alpha = 0.5  # opacity of 0.5
         cv2.addWeighted(im, alpha, im_origin, 1 - alpha, 0, im)
+
+
+def plot_circle_one_box(x, im, color=(128, 128, 128), point_size=2, line_thickness=2, lineType=cv2.LINE_AA):
+    assert im.data.contiguous, 'Image not contiguous. Apply np.ascontiguousarray(im) to polygon_plot_one_box() input image.'
+    c = x.cpu().numpy().reshape(-1, 2).astype(np.int32) if isinstance(x, torch.Tensor) else np.array(x).reshape(-1,
+                                                                                                                2).astype(
+        np.int32)
+    for point in c:
+        cv2.circle(im, point, point_size, color, line_thickness, lineType=lineType)
 
 
 def polygon_plot_one_box_PIL(x, im, color=(128, 128, 128), label=None, line_thickness=None):
@@ -474,7 +485,8 @@ def polygon_plot_one_box_PIL(x, im, color=(128, 128, 128), label=None, line_thic
     im = Image.fromarray(im)
     draw = ImageDraw.Draw(im)
     line_thickness = line_thickness or max(int(min(im.size) / 200), 2)
-    box = x.cpu().numpy().ravel().astype(np.int32) if isinstance(x, torch.Tensor) else np.array(x).ravel().astype(np.int32)
+    box = x.cpu().numpy().ravel().astype(np.int32) if isinstance(x, torch.Tensor) else np.array(x).ravel().astype(
+        np.int32)
     draw.polygon(box.tolist(), outline=color)  # plot
     if label:
         font = ImageFont.truetype("Arial.ttf", size=max(round(max(im.size) / 40), 12))
@@ -574,14 +586,14 @@ def polygon_plot_images(images, targets, paths=None, fname='images.jpg', names=N
 def polygon_plot_test_txt():  # from utils.plots import *; polygon_plot_test_txt()
     # Plot test.txt histograms
     x = np.loadtxt('test.txt', dtype=np.float32)
-    box = x[:, :8]    #xyxyxyxy
+    box = x[:, :8]  # xyxyxyxy
     # using center points instead
     cx, cy = box[:, 0::2].mean(axis=1), box[:, 1::2].mean(axis=1)
     fig, ax = plt.subplots(1, 1, figsize=(6, 6), tight_layout=True)
     ax.hist2d(cx, cy, bins=600, cmax=10, cmin=0)
     ax.set_aspect('equal')
     plt.savefig('hist2d.png', dpi=300)
-    
+
     fig, ax = plt.subplots(1, 2, figsize=(12, 6), tight_layout=True)
     ax[0].hist(cx, bins=600)
     ax[1].hist(cy, bins=600)
@@ -592,7 +604,7 @@ def polygon_plot_targets_txt():  # from utils.plots import *; polygon_plot_targe
     # Plot targets.txt histograms
     x = np.loadtxt('targets.txt', dtype=np.float32).T
     s = ['x1 targets', 'y1 targets', 'x2 targets', 'y2 targets',
-        'x3 targets', 'y3 targets', 'x4 targets', 'y4 targets']
+         'x3 targets', 'y3 targets', 'x4 targets', 'y4 targets']
     fig, ax = plt.subplots(4, 2, figsize=(16, 8), tight_layout=True)
     ax = ax.ravel()
     for i in range(8):
@@ -600,7 +612,7 @@ def polygon_plot_targets_txt():  # from utils.plots import *; polygon_plot_targe
         ax[i].legend()
         ax[i].set_title(s[i])
     plt.savefig('targets.jpg', dpi=200)
-    
+
 
 def polygon_plot_labels(labels, names=(), save_dir=Path(''), loggers=None):
     # plot dataset labels
@@ -627,7 +639,7 @@ def polygon_plot_labels(labels, names=(), save_dir=Path(''), loggers=None):
     else:
         ax[0].set_xlabel('classes')
     for i in range(2, 6):
-        sns.histplot(x, x=x.columns[2*(i-2)], y=x.columns[2*(i-2)+1], ax=ax[i], bins=50, pmax=0.9)
+        sns.histplot(x, x=x.columns[2 * (i - 2)], y=x.columns[2 * (i - 2) + 1], ax=ax[i], bins=50, pmax=0.9)
 
     # rectangles
     labels[:, 1:] *= 2000
